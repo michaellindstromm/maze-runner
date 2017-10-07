@@ -11,7 +11,7 @@ var mazeFinished = false;
 
 function setup() {
 
-    createCanvas(400, 400);
+    createCanvas(200, 200);
 
     cols = floor(width / w);
     rows = floor(height / w);
@@ -89,25 +89,35 @@ function draw() {
 }
 
 function keyPressed() {
+
+    var cI = current.i;
+    var cJ = current.j;
+    
+    console.log('current', current);
+
+    console.log('belowCurrent', grid[index(cI, cJ + 1)])
+    // console.log('aboveCurrent', grid[index(cI, cJ - 1)])
+    // console.log('rightCurrent', grid[index(cI + 1, cJ)])
+    // console.log('leftCurrent', grid[index(cI - 1, cJ)])
     
     if (mazeFinished) {
 
-        if (keyCode === LEFT_ARROW && playerX !== 0) {
+        if (keyCode === LEFT_ARROW && playerX !== 0 && (grid[index(cI - 1, cJ)].walls[1] !== true) && current.walls[3] !== true) {
             
             current = grid[(playerX - 1) + playerY * cols];
             playerX -= 1;
             
-        } else if (keyCode === RIGHT_ARROW && playerX + 1 !== cols) {
+        } else if (keyCode === RIGHT_ARROW && playerX + 1 !== cols && (grid[index(cI + 1, cJ)].walls[3] !== true) && current.walls[1] !== true ) {
 
             current = grid[(playerX + 1) + playerY * cols];
             playerX += 1;
             
-        } else if (keyCode === UP_ARROW && playerY !== 0) {
+        } else if (keyCode === UP_ARROW && playerY !== 0 && (grid[index(cI, cJ - 1)].walls[2] !== true) && current.walls[0] !== true) {
 
             current = grid[playerX + (playerY - 1) * cols];
             playerY -= 1;
        
-        } else if (keyCode === DOWN_ARROW && playerY + 1 !== rows) {
+        } else if (keyCode === DOWN_ARROW && playerY + 1 !== rows && (grid[index(cI, cJ + 1)].walls[0] !== true) && current.walls[2] !== true) {
 
             current = grid[playerX + (playerY + 1) * cols];
             playerY += 1;
