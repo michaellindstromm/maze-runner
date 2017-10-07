@@ -35,8 +35,15 @@ var gameOver = false;
 // SET TIMER
 var timer = 0;
 
+// USER TIMER
+var userTime;
+
 // DEFINED HERE BECAUSE VARIABLES DEFINED IN SETUP() ARE NOT ACCESSABLE
 var time;
+
+var timerDiv;
+
+var timeTaken;
 
 // SETUP IS A P5.JS FUNCTION
 function setup() {
@@ -44,8 +51,13 @@ function setup() {
     canvas = createCanvas(400, 400);
     centerCanvas();
 
+
     cols = floor(width / w);
     rows = floor(height / w);
+
+
+    timeTaken = createDiv('Timer: ');
+    timeTaken.position(windowWidth / 2 - 50, 50)
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
     //frameRate(5);
@@ -152,6 +164,11 @@ function draw() {
 
         // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
         mazeFinished = true;
+
+        userTime = timer / 10000
+        userTime = userTime.toFixed(2);
+    
+        timeTaken.elt.innerHTML = `Timer: ${userTime}`;
             
     }
 
@@ -219,10 +236,9 @@ function keyPressed() {
             text.position(windowWidth/2 - 35, 25);
 
             // CREATE USER TIME AND SHOW TO 2 DECIMAL PLACES
-            var userTime = timer/10000
-            userTime = userTime.toFixed(2);
-            timeTaken = createDiv(`Time: ${userTime} seconds`);
-            timeTaken.position(windowWidth / 2 - 65, 50);
+            
+            timeTaken.elt.innerHTML = `Time: ${userTime} seconds`;
+            timeTaken.position(windowWidth / 2 - 35, 50);
 
 
             var score = userTime/stackLength;
@@ -231,7 +247,7 @@ function keyPressed() {
             score = score.toFixed(2);
 
             var scoreDiv = createDiv(`Your Score: ${score}`);
-            scoreDiv.position(windowWidth / 2 - 65, 75)
+            scoreDiv.position(windowWidth / 2 - 50, 75)
             return;
         }
     }
