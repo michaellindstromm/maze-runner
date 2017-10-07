@@ -1,9 +1,12 @@
+var canvas;
+
 // TO KNOW WHICH CELL PLAYER IS IN
 var playerX = 0;
 var playerY = 0;
 
 // KEEP TRACK OF NUM OF COLS AND ROWS
-var cols, rows;
+var cols; 
+var rows;
 
 // TO DEFINE DIMENTIONS OF ONE CELL
 var w = 20;
@@ -26,10 +29,20 @@ var stackLength = 0;
 // SET TO TRUE WHEN MAZE IS FINISHED GENERATING
 var mazeFinished = false;
 
+// SET TO TRUE WHEN PLAYER HAS COMPLETED MAZE
+var gameOver = false;
+
+// SET TIMER
+var timer = 0;
+
+// DEFINED HERE BECAUSE VARIABLES DEFINED IN SETUP() ARE NOT ACCESSABLE
+var time;
+
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
-    createCanvas(300, 300);
+    canvas = createCanvas(400, 400);
+    centerCanvas();
 
     cols = floor(width / w);
     rows = floor(height / w);
@@ -37,6 +50,11 @@ function setup() {
     // FOR TESTING TO SLOW DOWN FRAME RATE
     //frameRate(5);
 
+    time = setInterval(() => {
+        if (mazeFinished) {
+            timer += 100;
+        }
+    }, 10);
 
 
     // PUSHES A NEW CELL TO THE GRID
@@ -55,6 +73,15 @@ function setup() {
     // SETS CURRENT CELL TO TOP LEFT CORNER
     current = grid[0];
 
+}
+
+function centerCanvas() {
+    let x = (windowWidth - width) / 2;
+    canvas.position(x, 100);
+}
+
+function windowResized() {
+    centerCanvas();
 }
 
 // DRAW IS A P5.JS FUNCTION
@@ -120,11 +147,12 @@ function draw() {
         var endY = (furthestCell.j) * w;
 
         fill(0, 255, 0, 100);
-        rect(endX, endY, w, w);
+        ellipse(endX + w/2, endY + w/2, w/1.5, w/1.5);
 
 
         // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
         mazeFinished = true;
+            
     }
 
 }
@@ -136,7 +164,11 @@ function keyPressed() {
     
 
     // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
-    if (mazeFinished) {
+    if (mazeFinished && gameOver === false) {
+        // setInterval(() => {
+        //     timer += 1;
+        //     console.log('timer', timer);
+        // }, 1000);
 
         // THESE IF STATEMENTS CHECK FOR FOUR THINGS 
         // 1. WHICH KEY IS PRESSED (ie. LEFT, RIGHT, UP, or DOWN)
@@ -173,7 +205,34 @@ function keyPressed() {
         // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
 
         if (current === furthestCell) {
-            console.log('YOU WON!')
+
+            console.log('stackLength', stackLength);
+
+            // SET GAME OVER VARIABLE TO TRUE
+            gameOver = true;
+
+            // STOP TIMER
+            clearInterval(time);
+
+            // LET USER KNOW THEY COMPLETED THE MAZE
+            text = createDiv('YOU WON!');
+            text.position(windowWidth/2 - 35, 25);
+
+            // CREATE USER TIME AND SHOW TO 2 DECIMAL PLACES
+            var userTime = timer/10000
+            userTime = userTime.toFixed(2);
+            timeTaken = createDiv(`Time: ${userTime} seconds`);
+            timeTaken.position(windowWidth / 2 - 65, 50);
+
+
+            var score = userTime/stackLength;
+            score = (1 / score) * 10;
+
+            score = score.toFixed(2);
+
+            var scoreDiv = createDiv(`Your Score: ${score}`);
+            scoreDiv.position(windowWidth / 2 - 65, 75)
+            return;
         }
     }
 }

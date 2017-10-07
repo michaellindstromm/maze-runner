@@ -87,7 +87,7 @@ function Cell(i, j) {
         var y = this.j * w;
         noStroke();
         fill(0, 0, 255, 100);
-        rect(x, y, w, w);
+        ellipse(x + w/2, y + w/2, w/1.5, w/1.5);
 
     }
 
