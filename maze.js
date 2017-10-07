@@ -93,13 +93,6 @@ function keyPressed() {
     var cI = current.i;
     var cJ = current.j;
     
-    console.log('current', current);
-
-    console.log('belowCurrent', grid[index(cI, cJ + 1)])
-    // console.log('aboveCurrent', grid[index(cI, cJ - 1)])
-    // console.log('rightCurrent', grid[index(cI + 1, cJ)])
-    // console.log('leftCurrent', grid[index(cI - 1, cJ)])
-    
     if (mazeFinished) {
 
         if (keyCode === LEFT_ARROW && playerX !== 0 && (grid[index(cI - 1, cJ)].walls[1] !== true) && current.walls[3] !== true) {
