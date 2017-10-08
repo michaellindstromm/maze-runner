@@ -11,7 +11,7 @@ var cols;
 var rows;
 
 // TO DEFINE DIMENTIONS OF ONE CELL
-var w = 20;
+var w = 16;
 
 // TO STORE CELL OBJECTS IN ORDER: LEFT - RIGHT & TOP - BOTTOM
 var grid = [];
@@ -47,12 +47,11 @@ var timerDiv;
 
 var timeTaken;
 
-var cellCheck = [];
 
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
-    canvas = createCanvas(400, 400);
+    canvas = createCanvas(480, 480);
     centerCanvas();
 
 
@@ -172,7 +171,7 @@ function draw() {
         // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
         mazeFinished = true;
 
-        userTime = timer / 10000
+        userTime = timer / 1000
         userTime = userTime.toFixed(2);
     
         timeTaken.elt.innerHTML = `Timer: ${userTime}`;
@@ -185,50 +184,25 @@ function draw() {
         // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
         if (mazeFinished && gameOver === false) {
 
-
-
-            // setInterval(() => {
-                //     timer += 1;
-                //     console.log('timer', timer);
-                // }, 1000);
-                
-                // THESE IF STATEMENTS CHECK FOR FOUR THINGS 
-                // 1. WHICH KEY IS PRESSED (ie. LEFT, RIGHT, UP, or DOWN)
-                // 2. IF THE PLAYER IS AT THE EDGE OF THE CANVAS
-                // 3. IF THE NEXT CELL THE PLAYER IS ATTEMPTING TO GO TO HAS A WALL
-                // 4. IF THE CURRENT CELL THE PLAYER IS IN HAS A WALL
-                
-
-
-
-                // *************************************************************
-                // *************************************************************
-                // TRYING TO MAKE IT keyIsDown() SO USER DOESN'T HAVE TO REPEATEDELY HIT SAME KEY
-                // *************************************************************
-                // *************************************************************
-
-
-
-
                 // LEFT ARROW
                 if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
 
-                    playerMoveX -= 5;
+                    playerMoveX -= 4;
                     
                     // RIGHT ARROW
                 } else if (keyIsDown(RIGHT_ARROW) && (current.walls[1] !== true && grid[index(cI + 1, cJ)].walls[3] !== true))  {
 
-                    playerMoveX += 5;
+                    playerMoveX += 4;
                     
                     // UP ARROW
                 } else if (keyIsDown(UP_ARROW) && (current.walls[0] !== true && grid[index(cI, cJ - 1)].walls[2] !== true)) {
 
-                    playerMoveY -= 5;
+                    playerMoveY -= 4;
                    
                     // BOTTOM ARROW
                 } else if (keyIsDown(DOWN_ARROW) && (current.walls[2] !== true && grid[index(cI, cJ + 1)].walls[0] !== true))  {
         
-                    playerMoveY += 5;
+                    playerMoveY += 4;
 
                 }
                 
@@ -239,21 +213,21 @@ function draw() {
                 player.x = playerMoveX + w / 2;
                 player.y = playerMoveY + w / 2;
                 
-                // console.log('player', player);
-                cellCheck[0] = current.i;
-                cellCheck[1] = current.j;
-                cellCheck[2] = current.walls;
-                // console.log('cellCheck', cellCheck);
 
-                if ((player.y - ((cJ * w) + w / 2)) === 20) {
+                var currentBottom = ((cJ * w) + (w / 2));
+                var currentTop = ((cJ * w) + (w / 2));
+                var currentRight = ((cI * w) + (w / 2));
+                var currentLeft = ((cI * w) + (w / 2));
+
+                if ((player.y - currentBottom) === w) {
                     current = grid[index(cI, cJ + 1)];
-                } else if ((((cJ * w) + w / 2) - player.y) === 20) {
+                } else if ((currentTop - player.y) === w) {
                     current = grid[index(cI, cJ - 1)];
                 }
 
-                if ((player.x - ((cI * w) + (w / 2))) === 20) {
+                if ((player.x - currentRight) === w) {
                     current = grid[index(cI + 1, cJ)];
-                } else if ((((cI * w)  + (w / 2)) - player.x) === 20) {
+                } else if ((currentLeft - player.x) === w) {
                     current = grid[index(cI - 1, cJ)];
                 }
                 
@@ -279,7 +253,7 @@ function draw() {
 
 
             var score = userTime / stackLength;
-            score = (1 / score) * 10;
+            score = (1 / score) * 100;
 
             score = score.toFixed(2);
 
@@ -291,27 +265,6 @@ function draw() {
     }
 
 }
-
-// Determines if player is hitting a wall
-
-function checkCollision(cX, cY) {
-    // var anyWallsHit = [];
-    // anyWallsHit.push(collideLineCircle(cX, cY, cX + w, cY, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
-    // anyWallsHit.push(collideLineCircle(cX + w, cY, cX + w, cY + w, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
-    // anyWallsHit.push(collideLineCircle(cX + w, cY + w, cX, cY + w, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
-    // anyWallsHit.push(collideLineCircle(cX, cY + w, cX, cY, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
-    // // console.log('anyWallsHit', anyWallsHit);
-    // console.log('current', current);
-    // if (anyWallsHit.indexOf(true) !== -1) {
-    //     return true;
-    // } else {
-    //     return false;
-    // }
-}
-// function keyPressed() {
-
-    
-// }
 
 
 
