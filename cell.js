@@ -86,7 +86,7 @@ function Cell(i, j) {
         var x = this.i * w;
         var y = this.j * w;
         noStroke();
-        fill(0, 0, 255, 100);
+        fill(255, 0, 0, 255);
         ellipse(x + w/2, y + w/2, w/1.5, w/1.5);
     }
 
@@ -130,14 +130,8 @@ function Cell(i, j) {
         if (this.visited) {
 
             noStroke();
-            fill(255, 0, 0, 100);
+            fill(66, 197, 244, 100);
             rect(x, y, w, w);
-            
-        }
-    }
-
-    this.moveMe = function(num) {
-        if (num === 0) {
             
         }
     }

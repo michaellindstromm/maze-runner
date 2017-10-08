@@ -39,15 +39,19 @@ var timer = 0;
 
 // USER TIMER
 var userTime;
-
-// DEFINED HERE BECAUSE VARIABLES DEFINED IN SETUP() ARE NOT ACCESSABLE
-var time;
+ 
 
 var timerDiv;
 
 var timeTaken;
 
+var minutes = 0;
 
+var time = setInterval(() => {
+    if (mazeFinished) {
+        timer += 1;
+    }
+}, 1000);
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
@@ -59,17 +63,12 @@ function setup() {
     rows = floor(height / w);
 
 
-    timeTaken = createDiv('Timer: ');
-    timeTaken.position(windowWidth / 2 - 50, 50)
+    timeTaken = createDiv('');
+    timeTaken.position(windowWidth / 2 - 10, 50)
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
     frameRate(1200);
 
-    time = setInterval(() => {
-        if (mazeFinished) {
-            timer += 100;
-        }
-    }, 10);
 
 
     // PUSHES A NEW CELL TO THE GRID
@@ -114,6 +113,8 @@ function draw() {
 
     current.visited = true;
 
+
+    // ONLY SHOW THIS AS MAZE IS BEING MADE
     if (mazeFinished === false) {
 
         current.highlight();
@@ -164,17 +165,31 @@ function draw() {
         var endX = (furthestCell.i) * w;
         var endY = (furthestCell.j) * w;
 
-        fill(0, 255, 0, 100);
+        // GEM
+        //****************************
+        fill(0, 255, 0, 255);
         ellipse(endX + w/2, endY + w/2, w/1.5, w/1.5);
-
+        //****************************
+        
 
         // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
         mazeFinished = true;
 
-        userTime = timer / 1000
-        userTime = userTime.toFixed(2);
+
+
+        if (timer === 60) {
+            minutes += 1;
+            timer = 0;
+        }
+
+        if (timer < 10) {
+
+            timeTaken.elt.innerHTML = `${minutes}:0${timer}`;
+        } else {
+
+            timeTaken.elt.innerHTML = `${minutes}:${timer}`;
+        }
     
-        timeTaken.elt.innerHTML = `Timer: ${userTime}`;
 
 
         var cI = current.i;
@@ -206,9 +221,12 @@ function draw() {
 
                 }
                 
+                // PLAYER
+                // *************************
                 noStroke();
-                fill(0, 0, 255, 100);
+                fill(0, 255, 255, 255);
                 var player = ellipse(playerMoveX + w / 2, playerMoveY + w / 2, w / 1.5, w / 1.5);
+                // *************************
                 
                 player.x = playerMoveX + w / 2;
                 player.y = playerMoveY + w / 2;
@@ -248,12 +266,8 @@ function draw() {
 
             // CREATE USER TIME AND SHOW TO 2 DECIMAL PLACES
 
-            timeTaken.elt.innerHTML = `Time: ${userTime} seconds`;
-            timeTaken.position(windowWidth / 2 - 55, 50);
-
-
-            var score = userTime / stackLength;
-            score = (1 / score) * 100;
+            var score = ((minutes * 60) + timer) / stackLength;
+            score = (1 / score) * 10;
 
             score = score.toFixed(2);
 
