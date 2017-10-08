@@ -88,7 +88,6 @@ function Cell(i, j) {
         noStroke();
         fill(0, 0, 255, 100);
         ellipse(x + w/2, y + w/2, w/1.5, w/1.5);
-
     }
 
     // USED TO DRAW LINES FOR CELL BASED ON THIS CELLS WALLS ARRAY
@@ -103,26 +102,26 @@ function Cell(i, j) {
         if (this.walls[0]) {
 
             line(x, y, x + w, y);
-
+            
         }
-
+        
         // RIGHT
         if (this.walls[1]) {
-
+            
             line(x + w, y, x + w, y + w);
-
+            
         }
-
+        
         // BOTTOM
         if (this.walls[2]) {
-
+            
             line(x + w, y + w, x, y + w);
-
+            
         }
-
+        
         // LEFT
         if (this.walls[3]) {
-
+            
             line(x, y + w, x, y);
 
         }
@@ -133,6 +132,12 @@ function Cell(i, j) {
             noStroke();
             fill(255, 0, 0, 100);
             rect(x, y, w, w);
+            
+        }
+    }
+
+    this.moveMe = function(num) {
+        if (num === 0) {
             
         }
     }

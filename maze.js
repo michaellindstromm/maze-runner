@@ -3,6 +3,8 @@ var canvas;
 // TO KNOW WHICH CELL PLAYER IS IN
 var playerX = 0;
 var playerY = 0;
+var playerMoveX = 0;
+var playerMoveY = 0;
 
 // KEEP TRACK OF NUM OF COLS AND ROWS
 var cols; 
@@ -45,6 +47,8 @@ var timerDiv;
 
 var timeTaken;
 
+var cellCheck = [];
+
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
@@ -60,7 +64,7 @@ function setup() {
     timeTaken.position(windowWidth / 2 - 50, 50)
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
-    //frameRate(5);
+    frameRate(1200);
 
     time = setInterval(() => {
         if (mazeFinished) {
@@ -111,7 +115,10 @@ function draw() {
 
     current.visited = true;
 
-    current.highlight();
+    if (mazeFinished === false) {
+
+        current.highlight();
+    }
     
     // CALLS FUNCTION THAT SETS THE NEXT CELL THE GENERATOR WILL VISIT BASED ON THE UNVISITED CELLS AROUND THE CURRENT CELL
     var next = current.checkNeighbors();
@@ -169,61 +176,91 @@ function draw() {
         userTime = userTime.toFixed(2);
     
         timeTaken.elt.innerHTML = `Timer: ${userTime}`;
+
+
+        var cI = current.i;
+        var cJ = current.j;
+
+
+        // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
+        if (mazeFinished && gameOver === false) {
+
+
+
+            // setInterval(() => {
+                //     timer += 1;
+                //     console.log('timer', timer);
+                // }, 1000);
+                
+                // THESE IF STATEMENTS CHECK FOR FOUR THINGS 
+                // 1. WHICH KEY IS PRESSED (ie. LEFT, RIGHT, UP, or DOWN)
+                // 2. IF THE PLAYER IS AT THE EDGE OF THE CANVAS
+                // 3. IF THE NEXT CELL THE PLAYER IS ATTEMPTING TO GO TO HAS A WALL
+                // 4. IF THE CURRENT CELL THE PLAYER IS IN HAS A WALL
+                
+
+
+
+                // *************************************************************
+                // *************************************************************
+                // TRYING TO MAKE IT keyIsDown() SO USER DOESN'T HAVE TO REPEATEDELY HIT SAME KEY
+                // *************************************************************
+                // *************************************************************
+
+
+
+
+                // LEFT ARROW
+                if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
+
+                    playerMoveX -= 5;
+                    
+                    // RIGHT ARROW
+                } else if (keyIsDown(RIGHT_ARROW) && (current.walls[1] !== true && grid[index(cI + 1, cJ)].walls[3] !== true))  {
+
+                    playerMoveX += 5;
+                    
+                    // UP ARROW
+                } else if (keyIsDown(UP_ARROW) && (current.walls[0] !== true && grid[index(cI, cJ - 1)].walls[2] !== true)) {
+
+                    playerMoveY -= 5;
+                   
+                    // BOTTOM ARROW
+                } else if (keyIsDown(DOWN_ARROW) && (current.walls[2] !== true && grid[index(cI, cJ + 1)].walls[0] !== true))  {
+        
+                    playerMoveY += 5;
+
+                }
+                
+                noStroke();
+                fill(0, 0, 255, 100);
+                var player = ellipse(playerMoveX + w / 2, playerMoveY + w / 2, w / 1.5, w / 1.5);
+                
+                player.x = playerMoveX + w / 2;
+                player.y = playerMoveY + w / 2;
+                
+                // console.log('player', player);
+                cellCheck[0] = current.i;
+                cellCheck[1] = current.j;
+                cellCheck[2] = current.walls;
+                // console.log('cellCheck', cellCheck);
+
+                if ((player.y - ((cJ * w) + w / 2)) === 20) {
+                    current = grid[index(cI, cJ + 1)];
+                } else if ((((cJ * w) + w / 2) - player.y) === 20) {
+                    current = grid[index(cI, cJ - 1)];
+                }
+
+                if ((player.x - ((cI * w) + (w / 2))) === 20) {
+                    current = grid[index(cI + 1, cJ)];
+                } else if ((((cI * w)  + (w / 2)) - player.x) === 20) {
+                    current = grid[index(cI - 1, cJ)];
+                }
+                
+            }
             
-    }
-
-}
-
-function keyPressed() {
-
-    var cI = current.i;
-    var cJ = current.j;
-    
-
-    // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
-    if (mazeFinished && gameOver === false) {
-        // setInterval(() => {
-        //     timer += 1;
-        //     console.log('timer', timer);
-        // }, 1000);
-
-        // THESE IF STATEMENTS CHECK FOR FOUR THINGS 
-        // 1. WHICH KEY IS PRESSED (ie. LEFT, RIGHT, UP, or DOWN)
-        // 2. IF THE PLAYER IS AT THE EDGE OF THE CANVAS
-        // 3. IF THE NEXT CELL THE PLAYER IS ATTEMPTING TO GO TO HAS A WALL
-        // 4. IF THE CURRENT CELL THE PLAYER IS IN HAS A WALL
-
-        // LEFT ARROW
-        if (keyCode === LEFT_ARROW && playerX !== 0 && (grid[index(cI - 1, cJ)].walls[1] !== true) && current.walls[3] !== true) {
-            
-            current = grid[(playerX - 1) + playerY * cols];
-            playerX -= 1;
-            
-        // RIGHT ARROW
-        } else if (keyCode === RIGHT_ARROW && playerX + 1 !== cols && (grid[index(cI + 1, cJ)].walls[3] !== true) && current.walls[1] !== true ) {
-
-            current = grid[(playerX + 1) + playerY * cols];
-            playerX += 1;
-          
-        // UP ARROW
-        } else if (keyCode === UP_ARROW && playerY !== 0 && (grid[index(cI, cJ - 1)].walls[2] !== true) && current.walls[0] !== true) {
-
-            current = grid[playerX + (playerY - 1) * cols];
-            playerY -= 1;
-       
-        // BOTTOM ARROW
-        } else if (keyCode === DOWN_ARROW && playerY + 1 !== rows && (grid[index(cI, cJ + 1)].walls[0] !== true) && current.walls[2] !== true) {
-
-            current = grid[playerX + (playerY + 1) * cols];
-            playerY += 1;
-            
-        }
-
-        // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
-
-        if (current === furthestCell) {
-
-            console.log('stackLength', stackLength);
+            // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
+            if (current === furthestCell) {
 
             // SET GAME OVER VARIABLE TO TRUE
             gameOver = true;
@@ -233,25 +270,48 @@ function keyPressed() {
 
             // LET USER KNOW THEY COMPLETED THE MAZE
             text = createDiv('YOU WON!');
-            text.position(windowWidth/2 - 35, 25);
+            text.position(windowWidth / 2 - 35, 25);
 
             // CREATE USER TIME AND SHOW TO 2 DECIMAL PLACES
-            
+
             timeTaken.elt.innerHTML = `Time: ${userTime} seconds`;
-            timeTaken.position(windowWidth / 2 - 35, 50);
+            timeTaken.position(windowWidth / 2 - 55, 50);
 
 
-            var score = userTime/stackLength;
+            var score = userTime / stackLength;
             score = (1 / score) * 10;
 
             score = score.toFixed(2);
 
             var scoreDiv = createDiv(`Your Score: ${score}`);
             scoreDiv.position(windowWidth / 2 - 50, 75)
-            return;
+            noLoop();
         }
+            
     }
+
 }
+
+// Determines if player is hitting a wall
+
+function checkCollision(cX, cY) {
+    // var anyWallsHit = [];
+    // anyWallsHit.push(collideLineCircle(cX, cY, cX + w, cY, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
+    // anyWallsHit.push(collideLineCircle(cX + w, cY, cX + w, cY + w, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
+    // anyWallsHit.push(collideLineCircle(cX + w, cY + w, cX, cY + w, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
+    // anyWallsHit.push(collideLineCircle(cX, cY + w, cX, cY, (cX * w) + (w / 2), (cY * w) + (w / 2) , w/1.5, w/1.5))
+    // // console.log('anyWallsHit', anyWallsHit);
+    // console.log('current', current);
+    // if (anyWallsHit.indexOf(true) !== -1) {
+    //     return true;
+    // } else {
+    //     return false;
+    // }
+}
+// function keyPressed() {
+
+    
+// }
 
 
 
