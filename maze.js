@@ -34,22 +34,67 @@ var mazeFinished = false;
 // SET TO TRUE WHEN PLAYER HAS COMPLETED MAZE
 var gameOver = false;
 
-// SET TIMER
-var timer = 0;
+// SET SECONDS
+var seconds = 0;
 
-// USER TIMER
+var minutes = 0;
+// USER SECONDS
 var userTime;
- 
+
+var difficultyChosen = false;
+
+var difficulty = 'HARD';
 
 var timerDiv;
 
 var timeTaken;
 
-var minutes = 0;
+var countDown = 3;
+
+var radios;
+
 
 var time = setInterval(() => {
-    if (mazeFinished) {
-        timer += 1;
+    if (mazeFinished && gameOver === false && difficultyChosen) {
+
+        if (countDown > 0) {
+
+            countDown -= 1;
+
+        }
+
+        if (countDown < 1) {
+
+            if (difficulty === 'EASY') {
+                
+                userTime = floor(stackLength / 3);
+                
+                stackLength -= 3;
+                
+            } else if (difficulty === 'MEDIUM') {
+                
+                userTime = floor(stackLength / 6);
+    
+                stackLength -= 6;
+
+            } else if (difficulty === 'HARD') {
+                
+                userTime = floor(stackLength / 9);
+                
+                stackLength -= 9;
+
+            } 
+    
+            if (userTime > 59) {
+                minutes = floor(userTime / 60);
+                seconds = userTime % 60;
+            } else {
+                minutes = 0;
+                seconds = userTime;
+            }
+
+        }
+        
     }
 }, 1000);
 // SETUP IS A P5.JS FUNCTION
@@ -69,7 +114,14 @@ function setup() {
     // FOR TESTING TO SLOW DOWN FRAME RATE
     frameRate(1200);
 
+    difficultyRadio = createRadio();
+    difficultyRadio.option('EASY');
+    difficultyRadio.option('MEDIUM');
+    difficultyRadio.option('HARD');
+    difficultyRadio.position(windowWidth / 2 - 110, 100);
 
+
+    radios = $(':input');
 
     // PUSHES A NEW CELL TO THE GRID
     for (var j = 0; j < rows; j++) {
@@ -91,7 +143,7 @@ function setup() {
 
 function centerCanvas() {
     let x = (windowWidth - width) / 2;
-    canvas.position(x, 100);
+    canvas.position(x, 150);
 }
 
 function windowResized() {
@@ -167,116 +219,159 @@ function draw() {
 
         // GEM
         //****************************
-        fill(0, 255, 0, 255);
-        ellipse(endX + w/2, endY + w/2, w/1.5, w/1.5);
+        if (difficultyChosen) {
+
+            fill(0, 255, 0, 255);
+            ellipse(endX + w/2, endY + w/2, w/1.5, w/1.5);
+
+        }
         //****************************
         
 
         // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
+        
+        
         mazeFinished = true;
 
+        if (minutes === 0 && seconds === 0) {
 
-
-        if (timer === 60) {
-            minutes += 1;
-            timer = 0;
+        } else if (seconds % 60 === 0) {
+            // console.log('seconds', seconds);
+            minutes -= 1;
+            seconds = 59;
         }
 
-        if (timer < 10) {
+        if (countDown > 0) {
 
-            timeTaken.elt.innerHTML = `${minutes}:0${timer}`;
-        } else {
+            timeTaken.elt.innerHTML = `${countDown}`;
 
-            timeTaken.elt.innerHTML = `${minutes}:${timer}`;
-        }
+        } else if (seconds < 10) {
+
+            timeTaken.elt.innerHTML = `${minutes}:0${seconds}`;
+        } else if (seconds < 60) {
+
+            timeTaken.elt.innerHTML = `${minutes}:${seconds}`;
+
+        } 
     
-
-
-        var cI = current.i;
-        var cJ = current.j;
-
-
-        // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
-        if (mazeFinished && gameOver === false) {
-
-                // LEFT ARROW
-                if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
-
-                    playerMoveX -= 4;
-                    
-                    // RIGHT ARROW
-                } else if (keyIsDown(RIGHT_ARROW) && (current.walls[1] !== true && grid[index(cI + 1, cJ)].walls[3] !== true))  {
-
-                    playerMoveX += 4;
-                    
-                    // UP ARROW
-                } else if (keyIsDown(UP_ARROW) && (current.walls[0] !== true && grid[index(cI, cJ - 1)].walls[2] !== true)) {
-
-                    playerMoveY -= 4;
-                   
-                    // BOTTOM ARROW
-                } else if (keyIsDown(DOWN_ARROW) && (current.walls[2] !== true && grid[index(cI, cJ + 1)].walls[0] !== true))  {
         
-                    playerMoveY += 4;
-
-                }
-                
-                // PLAYER
-                // *************************
-                noStroke();
-                fill(0, 255, 255, 255);
-                var player = ellipse(playerMoveX + w / 2, playerMoveY + w / 2, w / 1.5, w / 1.5);
-                // *************************
-                
-                player.x = playerMoveX + w / 2;
-                player.y = playerMoveY + w / 2;
-                
-
-                var currentBottom = ((cJ * w) + (w / 2));
-                var currentTop = ((cJ * w) + (w / 2));
-                var currentRight = ((cI * w) + (w / 2));
-                var currentLeft = ((cI * w) + (w / 2));
-
-                if ((player.y - currentBottom) === w) {
-                    current = grid[index(cI, cJ + 1)];
-                } else if ((currentTop - player.y) === w) {
-                    current = grid[index(cI, cJ - 1)];
-                }
-
-                if ((player.x - currentRight) === w) {
-                    current = grid[index(cI + 1, cJ)];
-                } else if ((currentLeft - player.x) === w) {
-                    current = grid[index(cI - 1, cJ)];
-                }
-                
-            }
-            
-            // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
-            if (current === furthestCell) {
-
-            // SET GAME OVER VARIABLE TO TRUE
-            gameOver = true;
-
-            // STOP TIMER
-            clearInterval(time);
-
-            // LET USER KNOW THEY COMPLETED THE MAZE
-            text = createDiv('YOU WON!');
-            text.position(windowWidth / 2 - 35, 25);
-
-            // CREATE USER TIME AND SHOW TO 2 DECIMAL PLACES
-
-            var score = ((minutes * 60) + timer) / stackLength;
-            score = (1 / score) * 10;
-
-            score = score.toFixed(2);
-
-            var scoreDiv = createDiv(`Your Score: ${score}`);
-            scoreDiv.position(windowWidth / 2 - 50, 75)
-            noLoop();
-        }
-            
     }
+
+    var cI = current.i;
+    var cJ = current.j;
+
+    if (difficultyChosen) {
+
+        // PLAYER
+        // *************************
+        noStroke();
+        fill(0, 255, 255, 255);
+        var player = ellipse(playerMoveX + w / 2, playerMoveY + w / 2, w / 1.5, w / 1.5);
+        // *************************
+
+    }
+
+    
+    // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
+    if (mazeFinished && gameOver === false && countDown === 0) {
+
+                 // LEFT ARROW
+        if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
+
+            playerMoveX -= 4;
+            
+            // RIGHT ARROW
+        } else if (keyIsDown(RIGHT_ARROW) && (current.walls[1] !== true && grid[index(cI + 1, cJ)].walls[3] !== true))  {
+
+            playerMoveX += 4;
+            
+            // UP ARROW
+        } else if (keyIsDown(UP_ARROW) && (current.walls[0] !== true && grid[index(cI, cJ - 1)].walls[2] !== true)) {
+
+            playerMoveY -= 4;
+            
+            // BOTTOM ARROW
+        } else if (keyIsDown(DOWN_ARROW) && (current.walls[2] !== true && grid[index(cI, cJ + 1)].walls[0] !== true))  {
+
+            playerMoveY += 4;
+
+        }
+        
+        
+        player.x = playerMoveX + w / 2;
+        player.y = playerMoveY + w / 2;
+        
+
+        var currentBottom = ((cJ * w) + (w / 2));
+        var currentTop = ((cJ * w) + (w / 2));
+        var currentRight = ((cI * w) + (w / 2));
+        var currentLeft = ((cI * w) + (w / 2));
+
+        if ((player.y - currentBottom) === w) {
+            current = grid[index(cI, cJ + 1)];
+        } else if ((currentTop - player.y) === w) {
+            current = grid[index(cI, cJ - 1)];
+        }
+
+        if ((player.x - currentRight) === w) {
+            current = grid[index(cI + 1, cJ)];
+        } else if ((currentLeft - player.x) === w) {
+            current = grid[index(cI - 1, cJ)];
+        }
+
+
+        
+        
+    }
+
+    
+    // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
+    if (current === furthestCell) {
+        
+        // SET GAME OVER VARIABLE TO TRUE
+        gameOver = true;
+        
+        // STOP seconds
+        clearInterval(time);
+        
+        // LET USER KNOW THEY COMPLETED THE MAZE
+        text = createDiv('YOU WON!');
+        text.position(windowWidth / 2 - 35, 25);
+        
+
+        noLoop();
+        
+    } else if (countDown === 0 && minutes === 0 && seconds === 0) {
+
+        text = createDiv('SORRY YOU RAN OUT OF TIME. TRY AGAIN.');
+        text.position(windowWidth / 2 - 125, 25);
+
+        clearInterval(time);
+
+
+        noLoop();
+
+    }
+
+    checkDifficultySelection()
+    
+}
+
+function checkDifficultySelection() {
+
+    if (radios[0].checked) {
+        difficulty = 'EASY';
+        difficultyChosen = true;
+    } else if (radios[1].checked) {
+        difficulty = 'MEDIUM';
+        difficultyChosen = true;
+    } else if (radios[2].checked) {
+        difficulty = 'HARD';
+        difficultyChosen = true;
+    }
+
+    // console.log('difficulty', difficulty);
+    // console.log('difficultyChosen', difficultyChosen);
 
 }
 
