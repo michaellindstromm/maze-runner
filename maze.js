@@ -121,7 +121,7 @@ var time = setInterval(() => {
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
-    canvas = createCanvas(160, 160);
+    canvas = createCanvas(480, 480);
     centerCanvas();
 
 
