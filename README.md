@@ -1,12 +1,11 @@
 # Maze Generation
 
 ### TL;DR
-Maze randomly generated.
-Game created there after.
-Clone and play.
+* Maze randomly generated.
+* Game created there after.
+* Clone and play.
 
 ### Game
-
 The premis of the game is there is a 'RED' character that is creating a maze in order to find the best place to hide his precious jewel. The user can choose from three difficulty levels: EASY, MEDIUM, or HARD. The more difficult the less time to find the jewel! WARNING: HARD is hard!
 
 
