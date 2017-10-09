@@ -1,4 +1,4 @@
-# Maze Generation
+# Maze Game
 
 ### TL;DR
 * Maze randomly generated.
