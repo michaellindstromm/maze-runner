@@ -1,10 +1,21 @@
 var canvas;
 
+// WIDTH AND HEIGHT OF CANVAS
+var canvasSize = 80;
+
+// SET FRAME RATE
+var frames = 60;
+
 // TO KNOW WHICH CELL PLAYER IS IN
 var playerX = 0;
 var playerY = 0;
 var playerMoveX = 0;
 var playerMoveY = 0;
+
+// STANDARD DIFFICULTIES FOR EACH LEVEL
+var easyDif = 2;
+var mediumDif = 5;
+var hardDif = 8;
 
 // KEEP TRACK OF NUM OF COLS AND ROWS
 var cols; 
@@ -58,6 +69,12 @@ var countDown = 3;
 // RADIO BUTTONS FOR DIFFICULTY SELECTION
 var levelRadios;
 
+// STACK OF CORRECT PATH TO END GOAL IN REVERSE ORDER
+var correctPathStack = [];
+
+// USED FOR FINDING THE CORRECT PATH
+var allUnvisited = [];
+
 
 // INTERVAL FUNCTION TO DISPLAY TIME RUNS EVERY SECOND
 var time = setInterval(() => {
@@ -85,21 +102,21 @@ var time = setInterval(() => {
             // ie. (MORE TIME FOR EASIER LEVELS)
             if (difficulty === 'EASY') {
                 
-                userTime = floor(stackLength / 3);
+                userTime = floor(stackLength / easyDif);
                 
-                stackLength -= 3;
+                stackLength -= easyDif;
                 
             } else if (difficulty === 'MEDIUM') {
                 
-                userTime = floor(stackLength / 6);
+                userTime = floor(stackLength / mediumDif);
     
-                stackLength -= 6;
+                stackLength -= mediumDif;
 
             } else if (difficulty === 'HARD') {
                 
-                userTime = floor(stackLength / 9);
+                userTime = floor(stackLength / hardDif);
                 
-                stackLength -= 9;
+                stackLength -= hardDif;
 
             } 
     
@@ -121,10 +138,11 @@ var time = setInterval(() => {
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
-    canvas = createCanvas(480, 480);
+    canvas = createCanvas(canvasSize, canvasSize);
     centerCanvas();
 
 
+    // SET NUMBER OF COLUMNS AND ROWS BASED ON WIDTH & HEIGHT OF CANVAS
     cols = floor(width / w);
     rows = floor(height / w);
 
@@ -133,7 +151,7 @@ function setup() {
     timeDiv.position(windowWidth / 2 - 10, 50);
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
-    frameRate(1200);
+    frameRate(frames);
 
     difficultyRadio = createRadio();
     difficultyRadio.option('EASY');
@@ -193,7 +211,9 @@ function draw() {
     if (mazeFinished === false) {
 
         current.highlight();
-    }
+
+    } 
+
     
     // CALLS FUNCTION THAT SETS THE NEXT CELL THE GENERATOR WILL VISIT BASED ON THE UNVISITED CELLS AROUND THE CURRENT CELL
     var next = current.checkNeighbors();
@@ -205,12 +225,18 @@ function draw() {
         
         // PUSHES CURRENT CELL TO THE STACK FOR BACK TRACKING PURPOSES
         stack.push(current);
+
         
         // REMOVES WALLS BETWEEN CURRENT AND NEXT CELL
         removeWalls(current, next);
         
         // SETS CURRENT CELL TO THE NEXT CELL
         current = next;
+
+        // PUSH CURRENT CELL TO UNVISITED 
+        // USED FOR FINDING CORRECT PATH
+        allUnvisited.push(current);
+        
         
 
     // AS LONG AS THERE IS SOMETHING IN THE STACK THE GENERATOR WILL CONTINUE TO RUN
@@ -219,25 +245,46 @@ function draw() {
         // CHECKS TO SEE IF CURRENT CELL IS FURTHEST FROM STARTING POINT
         if (stack.length > stackLength) {
 
+            // RESET CORRECT PATH STACK BECAUSE THERE IS A NEW LONGEST PATH
+            correctPathStack = [];
+
+            // RESET ALL UNVISITED BECAUSE ONLY NEED TO TRACK UNVISITED WHEN BACK TRCKING FROM CURRENT LONGEST PATH
+            allUnvisited = [];
+
             // SETS STACKLENGTH CHECKER VARIABLE
             stackLength = stack.length;
 
             // SETS FURTHEST CELL TO CURRENT CELL
             furthestCell = current;
 
+            // PUSH FURTHEST TO THE CORRECTPATH STACK
+            correctPathStack.push(current);
+
         } 
         
         // SETS CURRENT CELL TO MOST RECENT CELL IN STACK IN ORDER TO BACK TRACK
         // THIS IS THE ENTIRE BACKTRACKING PART
         current = stack.pop();
+        
+
+        // CREATES CORRECT PATH STACK BY CHECKING TWO THINGS
+        // 1. IF THE CURRENT CELL IS NOT ALREADY IN THE CORRECT PATH STACK
+        // 2. IF THE CURRENT CELL WAS NOT VISITED BEFORE THE CURRENT FURTHEST CELL WAS FOUND
+        if (correctPathStack.indexOf(current) === -1 && allUnvisited.indexOf(current) === -1) {
+            
+            correctPathStack.push(current);
+            console.log('cPS', correctPathStack);
+            
+        } 
+        
+        
 
         timeDiv.elt.innerHTML = 'Red is creating a maze in order to find the best place to hide his precious jewel. Can you find it before time runs out?';
         timeDiv.position((windowWidth / 2) - 350, 50);
 
     // WHEN THERE IS NOTHING LEFT IN THE STACK 
     // MEANING THE CURRENT CELL IS AT THE STARTING POSITION    
-    } else {
-
+    } else if (stack.length === 0) {
 
         // CREATES THE ENDING GOAL CELL FROM THE FURTHEST CELL
         var endX = (furthestCell.i) * w;
@@ -254,9 +301,7 @@ function draw() {
         //****************************
         
 
-        // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING
-        
-        
+        // SETS VARIABLE TO TRUE SIGNALING THE MAZE HAS FINISHED GENERATING        
         mazeFinished = true;
 
 
@@ -388,7 +433,7 @@ function draw() {
     if (current === furthestCell) {
         
         // SET GAME OVER VARIABLE TO TRUE
-        gameOver = true;
+        // gameOver = true;
         
         // STOP seconds
         clearInterval(time);
