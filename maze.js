@@ -34,37 +34,55 @@ var mazeFinished = false;
 // SET TO TRUE WHEN PLAYER HAS COMPLETED MAZE
 var gameOver = false;
 
-// SET SECONDS
+// DISPLAY SECONDS
 var seconds = 0;
 
+// DISPLAY MINUTES
 var minutes = 0;
-// USER SECONDS
+
+// TOTAL SECONDS USER HAS TO COMPLETE MAZE
 var userTime;
 
+// BOOLEAN TO DETERMINE IF USER HAS SELECTED A DIFFICULTY LEVEL
 var difficultyChosen = false;
 
-var difficulty = 'HARD';
+// ACTUAL DIFFICULTY LEVEL SELECTED BY USER
+var difficulty;
 
-var timerDiv;
+// DIV TO DISPLAY THE TIMER 
+var timeDiv;
 
-var timeTaken;
-
+// COUNTDOWN BEFORE GAME STARTS
 var countDown = 3;
 
-var radios;
+// RADIO BUTTONS FOR DIFFICULTY SELECTION
+var levelRadios;
 
 
+// INTERVAL FUNCTION TO DISPLAY TIME RUNS EVERY SECOND
 var time = setInterval(() => {
+
+    // CHECKS 3 THINGS
+    // 1. IS THE MAZE FINISHED BUILDING
+    // 2. IS THE GAME COMPLETED
+    // 3. HAS USER SELECTED DIFFICULTY
     if (mazeFinished && gameOver === false && difficultyChosen) {
 
+
+        // CHECKS TO SEE IF STILL COUNTING DOWN
+        // IF TRUE DECREMENT COUNTER
         if (countDown > 0) {
 
             countDown -= 1;
 
         }
 
+        // IF COUNTDOW COMPLETE
         if (countDown < 1) {
 
+            // CHECKS TO SEE WHICH DIFFICULTY SELECTED AND THEN
+            // SETS userTime TO CORRECT VALUE ACCORDINGLY
+            // ie. (MORE TIME FOR EASIER LEVELS)
             if (difficulty === 'EASY') {
                 
                 userTime = floor(stackLength / 3);
@@ -85,6 +103,8 @@ var time = setInterval(() => {
 
             } 
     
+            // CHECKS TO SEE IF USER HAS LESS THAN 60 SECONDS REMAINING
+            // SETS MINUTS AND SECONDS FOR DISPLAY
             if (userTime > 59) {
                 minutes = floor(userTime / 60);
                 seconds = userTime % 60;
@@ -97,10 +117,11 @@ var time = setInterval(() => {
         
     }
 }, 1000);
+
 // SETUP IS A P5.JS FUNCTION
 function setup() {
 
-    canvas = createCanvas(480, 480);
+    canvas = createCanvas(160, 160);
     centerCanvas();
 
 
@@ -108,8 +129,8 @@ function setup() {
     rows = floor(height / w);
 
 
-    timeTaken = createDiv('');
-    timeTaken.position(windowWidth / 2 - 10, 50)
+    timeDiv = createDiv('');
+    timeDiv.position(windowWidth / 2 - 10, 50)
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
     frameRate(1200);
@@ -121,7 +142,7 @@ function setup() {
     difficultyRadio.position(windowWidth / 2 - 110, 100);
 
 
-    radios = $(':input');
+    levelRadios = $(':input');
 
     // PUSHES A NEW CELL TO THE GRID
     for (var j = 0; j < rows; j++) {
@@ -141,11 +162,13 @@ function setup() {
 
 }
 
+// FUNCTION TO CENTER CANVAS BASED ON WINDOW WIDTH
 function centerCanvas() {
     let x = (windowWidth - width) / 2;
     canvas.position(x, 150);
 }
 
+// P5.JS FUNCTION TO CALL FUNCTION ON WINDOW RESIZING
 function windowResized() {
     centerCanvas();
 }
@@ -202,16 +225,19 @@ function draw() {
             // SETS FURTHEST CELL TO CURRENT CELL
             furthestCell = current;
 
-        }
+        } 
         
         // SETS CURRENT CELL TO MOST RECENT CELL IN STACK IN ORDER TO BACK TRACK
         // THIS IS THE ENTIRE BACKTRACKING PART
         current = stack.pop();
+
+        timeDiv.elt.innerHTML = `Red is creating a maze in order to find the best place to hide his precious jewel. Can you find it before time runs out?`;
         
 
     // WHEN THERE IS NOTHING LEFT IN THE STACK 
     // MEANING THE CURRENT CELL IS AT THE STARTING POSITION    
     } else {
+
 
         // CREATES THE ENDING GOAL CELL FROM THE FURTHEST CELL
         var endX = (furthestCell.i) * w;
@@ -233,33 +259,46 @@ function draw() {
         
         mazeFinished = true;
 
+
+        // CHECKS TO SEE IF SECONDS HAS REACHED 0 
         if (minutes === 0 && seconds === 0) {
 
         } else if (seconds % 60 === 0) {
-            // console.log('seconds', seconds);
+            
             minutes -= 1;
             seconds = 59;
         }
 
-        if (countDown > 0) {
+        // CHECKS 4 THINGS
+        // 1. COUNTDOWN NOT AT 0 YET AND DIFFICULTY CHOSEN THEN DISPLAY COUNTDOWN
+        // 2. COUNTDOWN NOT AT 0 YET AND DIFFICULT NOT CHOSEN
+        // 3. SECONDS < 10 DISPLAY 0 IN FRONT OF SECONDS
+        // 4. SECONDS >= 10 DO NOT DISPLAY 0 IN FRONT OF SECONDS
+        if (countDown > 0 && difficultyChosen) {
 
-            timeTaken.elt.innerHTML = `${countDown}`;
+            timeDiv.elt.innerHTML = `${countDown}`;
+            
+        } else if (countDown > 0) {
+
 
         } else if (seconds < 10) {
 
-            timeTaken.elt.innerHTML = `${minutes}:0${seconds}`;
+            timeDiv.elt.innerHTML = `${minutes}:0${seconds}`;
+
         } else if (seconds < 60) {
 
-            timeTaken.elt.innerHTML = `${minutes}:${seconds}`;
+            timeDiv.elt.innerHTML = `${minutes}:${seconds}`;
 
         } 
     
         
     }
 
+    // SETS VARIABLES TO CURRENT CURRENT GRID POSITION
     var cI = current.i;
     var cJ = current.j;
 
+    // IF DIFFICULTY CHOSEN THEN DISPLAY THE PLAYER LETTING USER KNOW THE GAME IS READY TO BE PLAYED
     if (difficultyChosen) {
 
         // PLAYER
@@ -272,8 +311,17 @@ function draw() {
     }
 
     
-    // KEYPRESSES ONLY WORK ONCE THE MAZE HAS FINISHED GENERATING
+    // KEYPRESSES ONLY WORKS AFTER THREE THINGS PASS
+    // 1. MAZE IS FINISHED GENERATING
+    // 2. GAME IS NOT OVER
+    // 3. COUNTDOWN HAS COMPLETED
     if (mazeFinished && gameOver === false && countDown === 0) {
+
+        // ALL OF THESE CHECK THREE THINGS
+        // 1. WHICH ARROW IS DOWN
+        // IN THE DIRECTION USER IS TRYING TO GO
+        // 2. IS THERE A WALL IN THAT DIRECTION FOR THE CURRENT CELL
+        // 3. IS THERE A WALL IN THAT DIRECTION FOR THE CELL NEXT TO THE CURRENT CELL
 
                  // LEFT ARROW
         if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
@@ -297,26 +345,36 @@ function draw() {
 
         }
         
-        
+
+        // SET PLAYERS X AND Y COORDINATES
         player.x = playerMoveX + w / 2;
         player.y = playerMoveY + w / 2;
         
 
-        var currentBottom = ((cJ * w) + (w / 2));
-        var currentTop = ((cJ * w) + (w / 2));
-        var currentRight = ((cI * w) + (w / 2));
-        var currentLeft = ((cI * w) + (w / 2));
+        // SET CURRENT CELLS X AND Y COORDINATES TO CENTER OF CELL
+        var currentY = ((cJ * w) + (w / 2));
+        var currentX = ((cI * w) + (w / 2));
 
-        if ((player.y - currentBottom) === w) {
+        // THESE CHECK IF THE PLAYER IS 1 CELLS WIDTH AWAY FROM THE CURRENT CELL
+        // THEN RESETS THE CURRENT CELL TO THE CORRECT CELL ACCORDINGLY
+        if ((player.y - currentY) === w) {
+
             current = grid[index(cI, cJ + 1)];
-        } else if ((currentTop - player.y) === w) {
+
+        } else if ((currentY - player.y) === w) {
+
             current = grid[index(cI, cJ - 1)];
+
         }
 
-        if ((player.x - currentRight) === w) {
+        if ((player.x - currentX) === w) {
+
             current = grid[index(cI + 1, cJ)];
-        } else if ((currentLeft - player.x) === w) {
+
+        } else if ((currentXt - player.x) === w) {
+
             current = grid[index(cI - 1, cJ)];
+
         }
 
 
@@ -341,6 +399,8 @@ function draw() {
 
         noLoop();
         
+        // CHECKS TO SEE IF GAME HAS STARTED AND THERE IS NO TIME LEFT
+        // IF SO THE PLAYER HAS LOST!!!!
     } else if (countDown === 0 && minutes === 0 && seconds === 0) {
 
         text = createDiv('SORRY YOU RAN OUT OF TIME. TRY AGAIN.');
@@ -357,21 +417,28 @@ function draw() {
     
 }
 
+// CHECKS TO SEE IF A DIFFICULTY HAS BEEN SELECTED 
 function checkDifficultySelection() {
 
-    if (radios[0].checked) {
-        difficulty = 'EASY';
-        difficultyChosen = true;
-    } else if (radios[1].checked) {
-        difficulty = 'MEDIUM';
-        difficultyChosen = true;
-    } else if (radios[2].checked) {
-        difficulty = 'HARD';
-        difficultyChosen = true;
-    }
+    if (levelRadios[0].checked) {
 
-    // console.log('difficulty', difficulty);
-    // console.log('difficultyChosen', difficultyChosen);
+        difficulty = 'EASY';
+
+        difficultyChosen = true;
+
+    } else if (levelRadios[1].checked) {
+
+        difficulty = 'MEDIUM';
+
+        difficultyChosen = true;
+
+    } else if (levelRadios[2].checked) {
+
+        difficulty = 'HARD';
+
+        difficultyChosen = true;
+
+    }
 
 }
 
@@ -387,6 +454,8 @@ function index(i, j) {
 
     }
 
+    // FORMULA:
+    // ((INDEX OF DESIGNATED ROW) * NUMBER OF COLUMNS) + THE INDEX OF THE DESIGNATED COLUMN
     return i + j * cols;
 
 }
