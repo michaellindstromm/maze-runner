@@ -130,7 +130,7 @@ function setup() {
 
 
     timeDiv = createDiv('');
-    timeDiv.position(windowWidth / 2 - 10, 50)
+    timeDiv.position(windowWidth / 2 - 10, 50);
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
     frameRate(1200);
@@ -231,8 +231,8 @@ function draw() {
         // THIS IS THE ENTIRE BACKTRACKING PART
         current = stack.pop();
 
-        timeDiv.elt.innerHTML = `Red is creating a maze in order to find the best place to hide his precious jewel. Can you find it before time runs out?`;
-        
+        timeDiv.elt.innerHTML = 'Red is creating a maze in order to find the best place to hide his precious jewel. Can you find it before time runs out?';
+        timeDiv.position((windowWidth / 2) - 350, 50);
 
     // WHEN THERE IS NOTHING LEFT IN THE STACK 
     // MEANING THE CURRENT CELL IS AT THE STARTING POSITION    
@@ -275,18 +275,19 @@ function draw() {
         // 3. SECONDS < 10 DISPLAY 0 IN FRONT OF SECONDS
         // 4. SECONDS >= 10 DO NOT DISPLAY 0 IN FRONT OF SECONDS
         if (countDown > 0 && difficultyChosen) {
-
+            
+            timeDiv.position(windowWidth / 2 - 10, 50);
             timeDiv.elt.innerHTML = `${countDown}`;
             
         } else if (countDown > 0) {
-
-
+            
+            
         } else if (seconds < 10) {
-
+            
             timeDiv.elt.innerHTML = `${minutes}:0${seconds}`;
-
+            
         } else if (seconds < 60) {
-
+            
             timeDiv.elt.innerHTML = `${minutes}:${seconds}`;
 
         } 
@@ -371,7 +372,7 @@ function draw() {
 
             current = grid[index(cI + 1, cJ)];
 
-        } else if ((currentXt - player.x) === w) {
+        } else if ((currentX - player.x) === w) {
 
             current = grid[index(cI - 1, cJ)];
 
