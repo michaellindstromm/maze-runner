@@ -9,4 +9,5 @@ After the maze is completed a game is created. The premis of the game is there i
 ### Generation
 The maze is created using a recursive function and back tracking through a stack.
 
+### Want to play?!
 To play simply clone the file down and start up a local server!
