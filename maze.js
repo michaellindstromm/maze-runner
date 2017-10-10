@@ -1,7 +1,7 @@
 var canvas;
 
 // WIDTH AND HEIGHT OF CANVAS
-var canvasSize = 80;
+var canvasSize = 480;
 
 // SET FRAME RATE
 var frames = 60;
@@ -60,6 +60,8 @@ var difficultyChosen = false;
 // ACTUAL DIFFICULTY LEVEL SELECTED BY USER
 var difficulty;
 
+var userDif;
+
 // DIV TO DISPLAY THE TIMER 
 var timeDiv;
 
@@ -72,8 +74,22 @@ var levelRadios;
 // STACK OF CORRECT PATH TO END GOAL IN REVERSE ORDER
 var correctPathStack = [];
 
+var cPSLength = 0;
+
 // USED FOR FINDING THE CORRECT PATH
 var allUnvisited = [];
+
+
+// CELL THE GHOST IS SUPPOSED TO BE IN
+var ghostCell = {i: 0, j: 0};
+
+var drawGhost = false;
+
+var userCell = [];
+
+var counter = 0;
+
+var ghostInterval = 2;
 
 
 // INTERVAL FUNCTION TO DISPLAY TIME RUNS EVERY SECOND
@@ -95,7 +111,7 @@ var time = setInterval(() => {
         }
 
         // IF COUNTDOW COMPLETE
-        if (countDown < 1) {
+        if (countDown === 0) {
 
             // CHECKS TO SEE WHICH DIFFICULTY SELECTED AND THEN
             // SETS userTime TO CORRECT VALUE ACCORDINGLY
@@ -105,6 +121,8 @@ var time = setInterval(() => {
                 userTime = floor(stackLength / easyDif);
                 
                 stackLength -= easyDif;
+
+                userDif = easyDif;
                 
             } else if (difficulty === 'MEDIUM') {
                 
@@ -112,28 +130,58 @@ var time = setInterval(() => {
     
                 stackLength -= mediumDif;
 
+                userDif = mediumDif;
+
             } else if (difficulty === 'HARD') {
                 
                 userTime = floor(stackLength / hardDif);
                 
                 stackLength -= hardDif;
 
+                userDif = hardDif;
+
             } 
     
-            // CHECKS TO SEE IF USER HAS LESS THAN 60 SECONDS REMAINING
-            // SETS MINUTS AND SECONDS FOR DISPLAY
-            if (userTime > 59) {
-                minutes = floor(userTime / 60);
-                seconds = userTime % 60;
-            } else {
-                minutes = 0;
-                seconds = userTime;
-            }
+            // // CHECKS TO SEE IF USER HAS LESS THAN 60 SECONDS REMAINING
+            // // SETS MINUTS AND SECONDS FOR DISPLAY
+            // if (userTime > 59) {
+            //     minutes = floor(userTime / 60);
+            //     seconds = userTime % 60;
+            // } else {
+            //     minutes = 0;
+            //     seconds = userTime;
+            // }
 
+            
         }
         
     }
 }, 1000);
+
+var ghostTimer = setInterval(() => {
+
+    if (countDown === 0) {
+        
+        drawGhost = true;
+
+        cPSLength = correctPathStack.length;
+
+
+        ghostCell = correctPathStack[(correctPathStack.length - (floor((userDif * 0.65) * ghostInterval)))];
+
+        if (ghostCell) {
+
+            correctPathStack.splice((correctPathStack.length - ( floor((userDif * 0.65) * ghostInterval))), correctPathStack.length);
+
+        } else {
+
+            ghostCell = furthestCell;
+
+        }
+
+    }
+
+}, ghostInterval * 500);
 
 // SETUP IS A P5.JS FUNCTION
 function setup() {
@@ -158,6 +206,7 @@ function setup() {
     difficultyRadio.option('MEDIUM');
     difficultyRadio.option('HARD');
     difficultyRadio.position(windowWidth / 2 - 110, 100);
+   
 
 
     levelRadios = $(':input');
@@ -273,7 +322,6 @@ function draw() {
         if (correctPathStack.indexOf(current) === -1 && allUnvisited.indexOf(current) === -1) {
             
             correctPathStack.push(current);
-            console.log('cPS', correctPathStack);
             
         } 
         
@@ -285,6 +333,14 @@ function draw() {
     // WHEN THERE IS NOTHING LEFT IN THE STACK 
     // MEANING THE CURRENT CELL IS AT THE STARTING POSITION    
     } else if (stack.length === 0) {
+
+        if (drawGhost === false) {
+
+            console.log('correctPath', correctPathStack);
+
+            drawGhost = true;
+
+        }
 
         // CREATES THE ENDING GOAL CELL FROM THE FURTHEST CELL
         var endX = (furthestCell.i) * w;
@@ -324,19 +380,23 @@ function draw() {
             timeDiv.position(windowWidth / 2 - 10, 50);
             timeDiv.elt.innerHTML = `${countDown}`;
             
-        } else if (countDown > 0) {
-            
-            
-        } else if (seconds < 10) {
-            
-            timeDiv.elt.innerHTML = `${minutes}:0${seconds}`;
-            
-        } else if (seconds < 60) {
-            
-            timeDiv.elt.innerHTML = `${minutes}:${seconds}`;
+        } else {
+            timeDiv.elt.innerHTML = ``;
 
-        } 
-    
+        }
+        // if (countDown > 0) {
+            
+            
+        // } else if (seconds < 10) {
+            
+        //     timeDiv.elt.innerHTML = `${minutes}:0${seconds}`;
+            
+        // } else if (seconds < 60) {
+            
+        //     timeDiv.elt.innerHTML = `${minutes}:${seconds}`;
+
+        // } 
+            
         
     }
 
@@ -357,12 +417,28 @@ function draw() {
     }
 
     
+    
     // KEYPRESSES ONLY WORKS AFTER THREE THINGS PASS
     // 1. MAZE IS FINISHED GENERATING
     // 2. GAME IS NOT OVER
     // 3. COUNTDOWN HAS COMPLETED
     if (mazeFinished && gameOver === false && countDown === 0) {
 
+
+        if (drawGhost) {
+
+            // console.log('ghostCell', ghostCell);
+            // GHOST
+            // *************************
+            noStroke();
+            fill(255, 165, 0, 255);
+            ellipse((ghostCell.i * w) + w / 2, (ghostCell.j * w) + w / 2, w / 1.5, w / 1.5);
+            // *************************
+
+        }
+
+
+        
         // ALL OF THESE CHECK THREE THINGS
         // 1. WHICH ARROW IS DOWN
         // IN THE DIRECTION USER IS TRYING TO GO
@@ -424,6 +500,24 @@ function draw() {
         }
 
 
+        // ONLY USED FOR TESTING TO SEE USER PATH
+        // if (userCell.indexOf(current) === -1) {
+
+        //     userCell.push(current);
+
+        //     counter +=1;
+        //     console.log('counter', counter);
+        // }
+
+        // for (var indexCell = 0; indexCell < userCell.length; indexCell++) {
+        //     var element = userCell[indexCell];
+
+        //     fill(255, 0, 0, 255);
+        //     ellipse((element.i * w) + (w / 2), (element.j * w) + (w / 2), w / 2, w / 2);
+
+    
+            
+        // }
         
         
     }
@@ -437,29 +531,33 @@ function draw() {
         
         // STOP seconds
         clearInterval(time);
+        clearInterval(ghostTimer);
         
         // LET USER KNOW THEY COMPLETED THE MAZE
         text = createDiv('YOU WON!');
         text.position(windowWidth / 2 - 35, 25);
         
-
+        
         noLoop();
         
         // CHECKS TO SEE IF GAME HAS STARTED AND THERE IS NO TIME LEFT
         // IF SO THE PLAYER HAS LOST!!!!
-    } else if (countDown === 0 && minutes === 0 && seconds === 0) {
-
-        text = createDiv('SORRY YOU RAN OUT OF TIME. TRY AGAIN.');
+    } else if (ghostCell === furthestCell) {
+        
+        text = createDiv('SORRY YOU LOST. TRY AGAIN.');
         text.position(windowWidth / 2 - 125, 25);
-
+        
         clearInterval(time);
+        clearInterval(ghostTimer);
 
 
         noLoop();
 
     }
 
-    checkDifficultySelection()
+    checkDifficultySelection();
+
+
     
 }
 
