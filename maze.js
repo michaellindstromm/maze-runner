@@ -256,7 +256,11 @@ function windowResized() {
 // IT RUNS CONTINUOUSLY UNTIL noLopp() IS CALLED
 function draw() {
 
-    // console.log('frameRate', frameRate());
+    if (frameRate() > 40) {
+        hardDif = 8;
+    } else {
+        hardDif = 7;
+    }
 
     // console.log('framerCount', framerCount);
 
