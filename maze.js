@@ -15,7 +15,7 @@ var playerMoveY = 0;
 // STANDARD DIFFICULTIES FOR EACH LEVEL
 var easyDif = 2;
 var mediumDif = 5;
-var hardDif = 8;
+var hardDif = 7;
 
 // KEEP TRACK OF NUM OF COLS AND ROWS
 var cols; 
