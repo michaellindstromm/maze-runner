@@ -101,6 +101,10 @@ var canCopy = true;
 
 var canReset = false;
 
+var canPlay = false;
+
+var drawReplay = true;
+
 
 // INTERVAL FUNCTION TO DISPLAY TIME RUNS EVERY SECOND
 var time = setInterval(() => {
@@ -109,7 +113,7 @@ var time = setInterval(() => {
     // 1. IS THE MAZE FINISHED BUILDING
     // 2. IS THE GAME COMPLETED
     // 3. HAS USER SELECTED DIFFICULTY
-    if (mazeFinished && gameOver === false && difficultyChosen) {
+    if (mazeFinished && gameOver === false && difficultyChosen && canPlay) {
 
 
         // CHECKS TO SEE IF STILL COUNTING DOWN
@@ -373,19 +377,31 @@ function draw() {
         // 2. COUNTDOWN NOT AT 0 YET AND DIFFICULT NOT CHOSEN
         // 3. SECONDS < 10 DISPLAY 0 IN FRONT OF SECONDS
         // 4. SECONDS >= 10 DO NOT DISPLAY 0 IN FRONT OF SECONDS
-        if (countDown > 0 && difficultyChosen) {
+        if (countDown > 0 && difficultyChosen && canPlay) {
             
-            $(outputDiv).html(`${countDown}`);
-            
+            $('.countdown-div').html(`${countDown}`);
+            $('.play-buttons').addClass('hidden');
+            $('.play-buttons').attr('src', 'replayarrow.png');
+
         } else {
 
+            $('.countdown-div').html('');
+
+            
             if (canCopy) {
                 canCopy = false;
                 stackCopy = correctPathStack.slice(0);
                 canReset = true;                
             }
 
-            $(outputDiv).html('');
+            if (canPlay && drawReplay) {
+                
+                drawReplay = false;
+                $('.play-buttons').removeClass('hidden');
+                
+            }
+            
+            
 
         }
      
@@ -516,6 +532,8 @@ function draw() {
 
     if (current === furthestCell || ghostCell === furthestCell) {
 
+        $('.play-buttons').addClass('hidden');
+
         // SET GAME OVER VARIABLE TO TRUE
         gameOver = true;
 
@@ -548,36 +566,6 @@ function draw() {
     
 }
 
-$('.replay-arrow').on('click', function() {
-
-    if (canReset) {
-
-        console.log('hello');
-
-        correctPathStack = stackCopy.slice(0);
-
-        playerX = 0;
-        playerY = 0;
-        playerMoveX = 0;
-        playerMoveY = 0;
-
-        ghostCell = { i: 0, j: 0 };
-
-        current = grid[0];
-
-        countDown = 3;
-
-        if (gameOver) {
-            gameOver = false;
-            loop();
-        }
-        
-        gameOver = false;
-
-
-    }
-
-});
 
 
 
@@ -671,3 +659,42 @@ function removeWalls(a, b) {
     }
 
 }
+
+$('.play-buttons').on('click', function() {
+
+    if (canReset && $(this).attr("src") === "replayarrow.png") {
+
+        $('.play-buttons').attr("src", "playButton.png");
+
+        correctPathStack = stackCopy.slice(0);
+
+        playerX = 0;
+        playerY = 0;
+        playerMoveX = 0;
+        playerMoveY = 0;
+
+        ghostCell = { i: 0, j: 0 };
+
+        current = grid[0];
+
+        countDown = 3;
+
+        canPlay = false;
+
+        drawReplay = true;
+
+        if (gameOver) {
+            gameOver = false;
+            loop();
+        }
+
+        gameOver = false;
+
+
+    } else if (mazeFinished && $(this).attr("src") === "playButton.png" && $('input[type=radio]:checked').length > 0) {
+
+        canPlay = true;
+
+    }
+    
+});
