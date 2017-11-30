@@ -4,14 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="main.css">
+    <title>Maze Runner</title>
 </head>
 <body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div class="col-2 d-flex align-items-center pr-0 mr-0 pl-4">
+
+                <div class="controls">
+                    <h3 class="text-center">Choose your difficulty level.</h3>
+                    <hr>
+                    
+                    <fieldset class="form-group">
+                        <legend class="text-center">DIFFICULTY</legend>
+                        <div class="difficulty-inputs">
+                            <div class="form-check w-100 ml-4">
+                                <label class="form-check-label ml-4">
+                                    <input type="radio" class="form-check-input ml-2 dif-input" name="optionsRadios" id="optionsRadios1" value="EASY">
+                                    EASY
+                                </label>
+                            </div>
+                            <div class="form-check w-100 ml-4">
+                                <label class="form-check-label ml-4">
+                                    <input type="radio" class="form-check-input ml-2 dif-input" name="optionsRadios" id="optionsRadios2" value="MEDIUM">
+                                    MEDIUM
+                                </label>
+                            </div>
+                            <div class="form-check w-100 ml-4">
+                                <label class="form-check-label ml-4">
+                                    <input type="radio" class="form-check-input ml-2 dif-input" name="optionsRadios" id="optionsRadios3" value="HARD">
+                                    HARD
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <hr>
+                    <h3 class="text-center">Use the arrow keys to control the player.</h3>
+                </div>
+
+            </div>
+            <div class="col-8 p-0 m-0">
+
+            </div>
+            <div class="col-2 d-flex flex-column justify-content-center align-items-center pl-4 pr-4">
+                <div class="display-2 text-center output-div"></div>
+                <div class="mt-4">
+                    <img src="replayarrow.png" alt="" width="50px" height="50px" class="hidden replay-arrow">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/addons/p5.dom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/addons/p5.sound.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
         crossorigin="anonymous"></script>
     <script src="maze.js"></script>
     <script src="cell.js"></script>

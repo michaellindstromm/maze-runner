@@ -1,7 +1,7 @@
 var canvas;
 
 // WIDTH AND HEIGHT OF CANVAS
-var canvasSize = 480;
+var canvasSize = 900;
 
 // SET FRAME RATE
 var frames = 60;
@@ -22,7 +22,7 @@ var cols;
 var rows;
 
 // TO DEFINE DIMENTIONS OF ONE CELL
-var w = 16;
+var w = 30;
 
 // TO STORE CELL OBJECTS IN ORDER: LEFT - RIGHT & TOP - BOTTOM
 var grid = [];
@@ -63,7 +63,7 @@ var difficulty;
 var userDif;
 
 // DIV TO DISPLAY THE TIMER 
-var timeDiv;
+var outputDiv;
 
 // COUNTDOWN BEFORE GAME STARTS
 var countDown = 3;
@@ -90,6 +90,16 @@ var userCell = [];
 var counter = 0;
 
 var ghostInterval = 2;
+
+var framerCount = 0;
+
+var ghostReady = false;
+
+var stackCopy;
+
+var canCopy = true;
+
+var canReset = false;
 
 
 // INTERVAL FUNCTION TO DISPLAY TIME RUNS EVERY SECOND
@@ -161,23 +171,28 @@ var time = setInterval(() => {
 var ghostTimer = setInterval(() => {
 
     if (countDown === 0) {
-        
-        drawGhost = true;
 
-        cPSLength = correctPathStack.length;
+        if (ghostReady) {
 
-
-        ghostCell = correctPathStack[(correctPathStack.length - (floor((userDif * 0.65) * ghostInterval)))];
-
-        if (ghostCell) {
-
-            correctPathStack.splice((correctPathStack.length - ( floor((userDif * 0.65) * ghostInterval))), correctPathStack.length);
-
-        } else {
-
-            ghostCell = furthestCell;
+            drawGhost = true;
+    
+            cPSLength = correctPathStack.length;
+    
+            ghostCell = correctPathStack[(correctPathStack.length - (floor((userDif * 0.6) * ghostInterval)))];
+    
+            if (ghostCell) {
+    
+                correctPathStack.splice((correctPathStack.length - ( floor((userDif * 0.6) * ghostInterval))), correctPathStack.length);
+    
+            } else {
+    
+                ghostCell = furthestCell;
+    
+            }
 
         }
+
+        ghostReady = true;        
 
     }
 
@@ -195,21 +210,13 @@ function setup() {
     rows = floor(height / w);
 
 
-    timeDiv = createDiv('');
-    timeDiv.position(windowWidth / 2 - 10, 50);
+
+    outputDiv = $('.output-div');
 
     // FOR TESTING TO SLOW DOWN FRAME RATE
-    frameRate(frames);
+    frameRate(frames);   
 
-    difficultyRadio = createRadio();
-    difficultyRadio.option('EASY');
-    difficultyRadio.option('MEDIUM');
-    difficultyRadio.option('HARD');
-    difficultyRadio.position(windowWidth / 2 - 110, 100);
-   
-
-
-    levelRadios = $(':input');
+    levelRadios = $('.dif-input');
 
     // PUSHES A NEW CELL TO THE GRID
     for (var j = 0; j < rows; j++) {
@@ -232,7 +239,8 @@ function setup() {
 // FUNCTION TO CENTER CANVAS BASED ON WINDOW WIDTH
 function centerCanvas() {
     let x = (windowWidth - width) / 2;
-    canvas.position(x, 150);
+    let y = ($(window).height() / 2) - (height / 2);
+    canvas.position(x, y);
 }
 
 // P5.JS FUNCTION TO CALL FUNCTION ON WINDOW RESIZING
@@ -243,6 +251,10 @@ function windowResized() {
 // DRAW IS A P5.JS FUNCTION
 // IT RUNS CONTINUOUSLY UNTIL noLopp() IS CALLED
 function draw() {
+
+    // console.log('frameRate', frameRate());
+
+    // console.log('framerCount', framerCount);
 
     background(100);
 
@@ -325,19 +337,14 @@ function draw() {
             
         } 
         
-        
-
-        timeDiv.elt.innerHTML = 'Red is creating a maze in order to find the best place to hide his precious jewel. Can you find it before time runs out?';
-        timeDiv.position((windowWidth / 2) - 350, 50);
 
     // WHEN THERE IS NOTHING LEFT IN THE STACK 
     // MEANING THE CURRENT CELL IS AT THE STARTING POSITION    
     } else if (stack.length === 0) {
 
+        
         if (drawGhost === false) {
-
-            console.log('correctPath', correctPathStack);
-
+            
             drawGhost = true;
 
         }
@@ -361,15 +368,6 @@ function draw() {
         mazeFinished = true;
 
 
-        // CHECKS TO SEE IF SECONDS HAS REACHED 0 
-        if (minutes === 0 && seconds === 0) {
-
-        } else if (seconds % 60 === 0) {
-            
-            minutes -= 1;
-            seconds = 59;
-        }
-
         // CHECKS 4 THINGS
         // 1. COUNTDOWN NOT AT 0 YET AND DIFFICULTY CHOSEN THEN DISPLAY COUNTDOWN
         // 2. COUNTDOWN NOT AT 0 YET AND DIFFICULT NOT CHOSEN
@@ -377,26 +375,20 @@ function draw() {
         // 4. SECONDS >= 10 DO NOT DISPLAY 0 IN FRONT OF SECONDS
         if (countDown > 0 && difficultyChosen) {
             
-            timeDiv.position(windowWidth / 2 - 10, 50);
-            timeDiv.elt.innerHTML = `${countDown}`;
+            $(outputDiv).html(`${countDown}`);
             
         } else {
-            timeDiv.elt.innerHTML = ``;
+
+            if (canCopy) {
+                canCopy = false;
+                stackCopy = correctPathStack.slice(0);
+                canReset = true;                
+            }
+
+            $(outputDiv).html('');
 
         }
-        // if (countDown > 0) {
-            
-            
-        // } else if (seconds < 10) {
-            
-        //     timeDiv.elt.innerHTML = `${minutes}:0${seconds}`;
-            
-        // } else if (seconds < 60) {
-            
-        //     timeDiv.elt.innerHTML = `${minutes}:${seconds}`;
-
-        // } 
-            
+     
         
     }
 
@@ -448,22 +440,22 @@ function draw() {
                  // LEFT ARROW
         if (keyIsDown(LEFT_ARROW) && (current.walls[3] !== true && grid[index(cI - 1, cJ)].walls[1] !== true))  {
 
-            playerMoveX -= 4;
+            playerMoveX -= w/4;
             
             // RIGHT ARROW
         } else if (keyIsDown(RIGHT_ARROW) && (current.walls[1] !== true && grid[index(cI + 1, cJ)].walls[3] !== true))  {
 
-            playerMoveX += 4;
+            playerMoveX += w/4;
             
             // UP ARROW
         } else if (keyIsDown(UP_ARROW) && (current.walls[0] !== true && grid[index(cI, cJ - 1)].walls[2] !== true)) {
 
-            playerMoveY -= 4;
+            playerMoveY -= w/4;
             
             // BOTTOM ARROW
         } else if (keyIsDown(DOWN_ARROW) && (current.walls[2] !== true && grid[index(cI, cJ + 1)].walls[0] !== true))  {
 
-            playerMoveY += 4;
+            playerMoveY += w/4;
 
         }
         
@@ -522,44 +514,72 @@ function draw() {
         
     }
 
-    
-    // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
-    if (current === furthestCell) {
-        
+    if (current === furthestCell || ghostCell === furthestCell) {
+
         // SET GAME OVER VARIABLE TO TRUE
-        // gameOver = true;
-        
+        gameOver = true;
+
         // STOP seconds
         clearInterval(time);
         clearInterval(ghostTimer);
-        
-        // LET USER KNOW THEY COMPLETED THE MAZE
-        text = createDiv('YOU WON!');
-        text.position(windowWidth / 2 - 35, 25);
-        
-        
-        noLoop();
-        
-        // CHECKS TO SEE IF GAME HAS STARTED AND THERE IS NO TIME LEFT
-        // IF SO THE PLAYER HAS LOST!!!!
-    } else if (ghostCell === furthestCell) {
-        
-        text = createDiv('SORRY YOU LOST. TRY AGAIN.');
-        text.position(windowWidth / 2 - 125, 25);
-        
-        clearInterval(time);
-        clearInterval(ghostTimer);
-
 
         noLoop();
+
+        // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
+        if (current === furthestCell) {
+
+            // LET USER KNOW THEY COMPLETED THE MAZE
+            $(outputDiv).html('YOU WON!');
+
+        } else {
+
+            $(outputDiv).html('YOU LOST!');
+
+        }
 
     }
 
+
     checkDifficultySelection();
 
-
+    // if (canReset) {
+    //     console.log('rate', frameRate());
+    // }
     
 }
+
+$('.replay-arrow').on('click', function() {
+
+    if (canReset) {
+
+        console.log('hello');
+
+        correctPathStack = stackCopy.slice(0);
+
+        playerX = 0;
+        playerY = 0;
+        playerMoveX = 0;
+        playerMoveY = 0;
+
+        ghostCell = { i: 0, j: 0 };
+
+        current = grid[0];
+
+        countDown = 3;
+
+        if (gameOver) {
+            gameOver = false;
+            loop();
+        }
+        
+        gameOver = false;
+
+
+    }
+
+});
+
+
 
 // CHECKS TO SEE IF A DIFFICULTY HAS BEEN SELECTED 
 function checkDifficultySelection() {

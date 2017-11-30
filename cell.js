@@ -95,7 +95,7 @@ function Cell(i, j) {
         var y = this.j * w;
         noStroke();
         fill(255, 0, 0, 255);
-        rect(x, y, w, w);
+        rect(x, y, w, w)
     }
 
     // USED TO DRAW LINES FOR CELL BASED ON THIS CELLS WALLS ARRAY
