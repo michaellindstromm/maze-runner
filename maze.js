@@ -532,26 +532,19 @@ function draw() {
 
     if (current === furthestCell || ghostCell === furthestCell) {
 
-        $('.play-buttons').addClass('hidden');
-
         // SET GAME OVER VARIABLE TO TRUE
         gameOver = true;
-
-        // STOP seconds
-        clearInterval(time);
-        clearInterval(ghostTimer);
 
         noLoop();
 
         // CHECKS TO SEE IF THE PLAYER HAS WON!!!!
         if (current === furthestCell) {
 
-            // LET USER KNOW THEY COMPLETED THE MAZE
-            $(outputDiv).html('YOU WON!');
+            $('.countdown-div').html('YOU WON!');
 
         } else {
 
-            $(outputDiv).html('YOU LOST!');
+            $('.countdown-div').html('YOU LOST!');
 
         }
 
@@ -664,6 +657,8 @@ $('.play-buttons').on('click', function() {
 
     if (canReset && $(this).attr("src") === "replayarrow.png") {
 
+        $('.countdown-div').html('');
+
         $('.play-buttons').attr("src", "playButton.png");
 
         correctPathStack = stackCopy.slice(0);
@@ -678,8 +673,6 @@ $('.play-buttons').on('click', function() {
         current = grid[0];
 
         countDown = 3;
-
-        canPlay = false;
 
         drawReplay = true;
 
